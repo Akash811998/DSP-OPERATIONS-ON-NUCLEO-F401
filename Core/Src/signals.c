@@ -113,6 +113,7 @@ float inputSignal_f32_1kHz_15kHz[320] =
 
 
 
+//see readme file on how to view this plot signal on SWV
 float g_in_sig_sample;
 void plot_input_signal(void)
 {
@@ -120,7 +121,7 @@ void plot_input_signal(void)
   for(i=0; i< HZ_5_SIG_LEN ;i++)
   {
     g_in_sig_sample = _5hz_signal[i];
-    HAL_Delay(50);
+    HAL_Delay(10);
   }
 
 

@@ -7,14 +7,18 @@ This project demonstrates basic Digital Signal Processing (DSP) operations on th
 SWV is not available on the VSCODE extension for now. So what you can do it generate the .elf file on Vscode and then debug using cubeIDE. I attach the details/snapshots on how to do this below
 
 
-![Import Step 1](import.png)
-![Import Step 2](import2.png)
-![Debug Configuration](debug_conf.png)
-![Open SWV](open_swv.png)
-![SWV Settings](swv_settings.png)
+![Import Step 1](images/import.png)
+![Import Step 2](images/import2.png)
+![Debug Configuration](images/debug_conf.png)
+![Open SWV](images/open_swv.png)
+![SWV Settings](images/swv_settings.png)
 
 You can see the signal in the background
 
+
+If you want to have a serial monitor which plots out signals you can use the Arduino IDE where when the signal data is transferred to the serial monitor it makes a nice graph and shows the values
+![Arduino Settings](images/arduino.png)
+![Arduino Serial Viewer](images/arduino_serial_plotter.png)
 
 
 

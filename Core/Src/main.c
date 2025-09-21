@@ -24,11 +24,15 @@
 #include <signals.h>
 #include <stdint.h>
 #include <stdio.h>
+#include "arm_math.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+extern float32_t _640_points_ecg_[];
+extern float32_t  impulse_response[29];
+extern float32_t _5hz_signal[];
+extern float32_t inputSignal_f32_1kHz_15kHz[];
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -57,7 +61,7 @@ static void MX_USART2_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+  float32_t ak=0,bk=0;
 /* USER CODE END 0 */
 
 /**
@@ -94,16 +98,26 @@ int main(void)
 
   //enable FPU
   SCB->CPACR |= (3UL<< 10*2) | (3UL<<11*2); //set 23-20 bits of FPU coprocessor
-  /* USER CODE END 2 */
+
+
+  ak=signal_mean(inputSignal_f32_1kHz_15kHz,KHZ1_15_SIG_LEN);
+
+  ak=signal_variance(inputSignal_f32_1kHz_15kHz,ak,KHZ1_15_SIG_LEN);
+
+  ak=signal_standard_deviation(ak);
+
+  arm_std_f32(inputSignal_f32_1kHz_15kHz,KHZ1_15_SIG_LEN,&bk);
+    /* USER CODE END 2 */
+
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    //
-    //plot_input_signal();
-    printf("HELLO\n\r");
-    HAL_Delay(1000);
+
+    plot_input_signal();
+
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

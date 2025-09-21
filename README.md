@@ -23,10 +23,18 @@ If you want to have a serial monitor which plots out signals you can use the Ard
 
 
 
+1. ADD -u_printf_float -u_scanf_float in gcc_arm_none_eabi.cmake file to enable printing/accepting float values from scanf/printf 
+2. Add the library path in gcc_arm_none_eabi.cmake file as I didn't find a way on how to add it from the CmakeLists.txt file
+
+   ![GCC FLAGS](images/gcc_flags.png)
+
+3.  Add macro ARM_MATH_CM4, __FPU_PRESENT in CMAKElists.txt file
 
 
-
-
+These are the ARM official documentation links to refer to the different DSP functions they support
+https://arm-software.github.io/CMSIS_5/DSP/html/index.html
+https://arm-software.github.io/CMSIS_5/DSP/html/modules.html
+   ![CMSIS_DSP](images/CMSIS_DSP.png)
 
 
 

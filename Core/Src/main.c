@@ -30,9 +30,13 @@
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 extern float32_t _640_points_ecg_[];
-extern float32_t  impulse_response[29];
+extern float32_t  impulse_response[];
 extern float32_t _5hz_signal[];
 extern float32_t inputSignal_f32_1kHz_15kHz[];
+
+float32_t output_convolution_arr[KHZ1_15_SIG_LEN + IMP_RESP_LENGTH -1];
+float32_t output_running_sum[KHZ1_15_SIG_LEN];
+float32_t output_first_difference[KHZ1_15_SIG_LEN];
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -99,23 +103,43 @@ int main(void)
   //enable FPU
   SCB->CPACR |= (3UL<< 10*2) | (3UL<<11*2); //set 23-20 bits of FPU coprocessor
 
+  //MEAN, VARIANCE AND STANDARD DEVIATION
+  // ak=signal_mean(inputSignal_f32_1kHz_15kHz,KHZ1_15_SIG_LEN);
+  // ak=signal_variance(inputSignal_f32_1kHz_15kHz,ak,KHZ1_15_SIG_LEN);
+  // ak=signal_standard_deviation(ak);
+  // //ARM DSP library to find the standard deviation value. This is much faster than by calculating the it manually shown above
+  // arm_std_f32(inputSignal_f32_1kHz_15kHz,KHZ1_15_SIG_LEN,&bk);
 
-  ak=signal_mean(inputSignal_f32_1kHz_15kHz,KHZ1_15_SIG_LEN);
+  //CONVOLUTION
+  //the convoluted output is a signal where the resultant signal is a signal which filters the 15KHz components from the input signal and outputs only the 1KHz
+  //the convolution along with  the impulse response filters the 15KHz from the input as it has a cutoff frequency of 6KHz
+  //convolution((float32_t*) inputSignal_f32_1kHz_15kHz,(float32_t*) output_convolution_arr,(float32_t*) impulse_response, (uint32_t) KHZ1_15_SIG_LEN, (uint32_t) IMP_RESP_LENGTH);
+ 
+  // float32_t time1=SysTick->VAL;
+  // arm_conv_f32((float32_t*) inputSignal_f32_1kHz_15kHz,KHZ1_15_SIG_LEN,impulse_response,IMP_RESP_LENGTH,output_convolution_arr);
+  //  float32_t time2 = (float32_t)(time1-SysTick->VAL)/((float32_t)SystemCoreClock/1000); //in milliseconds
 
-  ak=signal_variance(inputSignal_f32_1kHz_15kHz,ak,KHZ1_15_SIG_LEN);
 
-  ak=signal_standard_deviation(ak);
-
-  arm_std_f32(inputSignal_f32_1kHz_15kHz,KHZ1_15_SIG_LEN,&bk);
+  calc_running_sum(inputSignal_f32_1kHz_15kHz,output_running_sum , KHZ1_15_SIG_LEN);
+  calc_first_difference(inputSignal_f32_1kHz_15kHz,output_first_difference , KHZ1_15_SIG_LEN);
+  //plot_runningsum_firstdifference();
     /* USER CODE END 2 */
 
 
+
+
+  
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
 
-    plot_input_signal();
+    plot_runningsum_firstdifference();
+
+   //plot_input_signal();
+
+   // convolution_print_all_signals();
+    
 
 
     /* USER CODE END WHILE */

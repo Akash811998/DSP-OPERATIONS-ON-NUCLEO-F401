@@ -36,7 +36,10 @@ https://arm-software.github.io/CMSIS_5/DSP/html/index.html
 https://arm-software.github.io/CMSIS_5/DSP/html/modules.html
    ![CMSIS_DSP](images/CMSIS_DSP.png)
 
+All the DSP API's which you need to use must be added to the STM32_Drivers_Src macro in Cmakelists.txt to use them. By default they are not added and needs to be manually added in order to use them :(
 
+If you are seeing problems with the SWV viewer, then try to add a delay like 10ms when plotting to see the correct signals on the graph.
+usually when you are trying to see lot of variable values on the SWV then this might happen
 
 
 ## Features

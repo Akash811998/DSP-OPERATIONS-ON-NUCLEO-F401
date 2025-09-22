@@ -46,6 +46,9 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Src/signals.c
+    Drivers/CMSIS/DSP/Source/FilteringFunctions/arm_conv_f32.c
+    Drivers/CMSIS/DSP/Source/StatisticsFunctions/arm_var_f32.c
+    Drivers/CMSIS/DSP/Source/StatisticsFunctions/arm_std_f32.c
     # Add user sources here
 )
 

@@ -1,7 +1,12 @@
 
 #include "signals.h"
+#include "arm_math_types.h"
+#include <stdint.h>
 #include <stdio.h>
 
+extern float32_t output_convolution_arr[];
+extern float32_t output_running_sum[];
+extern float32_t output_first_difference[];
 
 
 float32_t _640_points_ecg_[640]=
@@ -55,7 +60,8 @@ float32_t _640_points_ecg_[640]=
 0.0067797,0.0033898,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 };
 
-const float32_t  impulse_response[29] = {
+//Kernel low pass filter with cutoff frequency of 6KHz where when input is given inputs of freq less than 6KHz will pass through and above than 6KHz will not
+const float32_t  impulse_response[IMP_RESP_LENGTH] = {
   -0.0018225230f, -0.0015879294f, +0.0000000000f, +0.0036977508f, +0.0080754303f, +0.0085302217f, -0.0000000000f, -0.0173976984f,
   -0.0341458607f, -0.0333591565f, +0.0000000000f, +0.0676308395f, +0.1522061835f, +0.2229246956f, +0.2504960933f, +0.2229246956f,
   +0.1522061835f, +0.0676308395f, +0.0000000000f, -0.0333591565f, -0.0341458607f, -0.0173976984f, -0.0000000000f, +0.0085302217f,
@@ -125,9 +131,19 @@ void plot_input_signal(void)
   {
     g_in_sig_sample = inputSignal_f32_1kHz_15kHz[i]; //change RHS variable as per the signal you want
     printf("%f\n\r",g_in_sig_sample); //displays the value on UART
+    HAL_Delay(100);
   }
-
-
+}
+//for convultion there will be two components, the impulse response will be predefined(const float32_t  impulse_response[29]) and the input will be provided by us
+float32_t g_imp_rsp_sample;
+void plot_impulse_response(void)
+{
+  for(int i=0; i<IMP_RESP_LENGTH;i++)
+  {
+    g_imp_rsp_sample = impulse_response[i];
+     printf("%f\n\r",g_imp_rsp_sample); //displays the value on UART
+     HAL_Delay(100);
+  }
 }
 
 //Find out the mean 
@@ -160,3 +176,89 @@ float32_t signal_variance(float32_t *sig_src_arr,float32_t sig_mean, uint32_t si
   return sqrt(sig_variance);
 }
 
+float32_t output_convolution;
+uint32_t time_convo;
+void convolution(float32_t* sig_source,float32_t* sig_dest,float32_t* imp_resp, uint32_t sig_input_length, uint32_t imp_resp_len)
+{
+
+  uint32_t time1=SysTick->VAL;
+  //compute output signal length N+M-1
+  uint32_t sig_dest_length = sig_input_length + imp_resp_len -1;
+
+  for(uint32_t i=0; i<sig_dest_length ;i++)
+  {
+    sig_dest[i]=0;
+  }
+
+
+  //perform convolution
+    for(uint32_t i=0; i<sig_input_length ;i++)
+  {
+    for(uint32_t j=0;j<imp_resp_len;j++)
+    {
+      sig_dest[i+j] = sig_dest[i+j] + (sig_source[i]*imp_resp[j]);
+    }
+  }
+  time_convo= time1-SysTick->VAL;
+
+  // //print output values
+  // for(uint32_t i=0; i< sig_dest_length; i++)
+  // {
+  //   output_convolution = sig_dest[i];
+  //   printf("%f \n\r",output_convolution); //displays the value on UART
+  //   HAL_Delay(100);
+  // }
+}
+
+void convolution_print_all_signals()
+{
+  uint32_t i=0,j=0;
+
+  for(uint32_t k=0; k< KHZ1_15_SIG_LEN + IMP_RESP_LENGTH -1; k++)
+  {
+    i++;
+    j++;
+
+    if(i==KHZ1_15_SIG_LEN)  
+      i=0;
+    if(j==IMP_RESP_LENGTH)
+      j=0;
+    g_in_sig_sample=inputSignal_f32_1kHz_15kHz[i];
+    g_imp_rsp_sample=impulse_response[j];
+    output_convolution=output_convolution_arr[k];
+
+    printf("%f,",g_in_sig_sample);
+    printf("%f,",g_imp_rsp_sample);
+    printf("%f\n\r",output_convolution);
+  }
+}
+
+//CALCULATE RUNNING SUM
+void calc_running_sum(float32_t *sig_input, float32_t *sig_output, uint32_t sig_length)
+{
+  sig_output[0]=sig_input[0];
+  for(uint32_t i=1; i<sig_length;i++)
+    sig_output[i]=sig_output[i-1] + sig_input[i];
+
+}
+
+//CALCULATE FIRST DIFFERENCE
+void calc_first_difference(float32_t *sig_input, float32_t *sig_output, uint32_t sig_length)
+{
+  sig_output[0]=sig_input[0];
+  for(uint32_t i=1; i<sig_length;i++)
+    sig_output[i]= sig_input[i] - sig_input[i-1] ;
+
+}
+
+float32_t show_runsum, show_runfirstdiff;
+void plot_runningsum_firstdifference(void)
+{
+  for(uint32_t i=0; i < KHZ1_15_SIG_LEN; i++)
+  {
+    g_in_sig_sample = inputSignal_f32_1kHz_15kHz[i]; //input reference signal
+    show_runsum=output_running_sum[i];
+    show_runfirstdiff=output_first_difference[i];
+     HAL_Delay(1);
+  }
+}
